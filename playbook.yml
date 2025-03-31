@@ -5,6 +5,22 @@
     - group_vars/aws.yml
 
   tasks:
+    - name: Enable nginx1 repo (Amazon Linux 2)
+      command: amazon-linux-extras enable nginx1
+      args:
+        creates: /etc/yum.repos.d/nginx.repo
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Clean yum metadata
+      command: yum clean metadata
+      when: ansible_facts['distribution'] == "Amazon"
+
+    - name: Install web server
+      package:
+        name: "{{ webserver }}"
+        state: present
+      notify: restart nginx
+
     - name: Ensure firewalld is installed
       package:
         name: firewalld
