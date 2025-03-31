@@ -1,0 +1,45 @@
+- name: Provision Web Servers on AWS
+  hosts: aws
+  become: yes
+  vars_files:
+    - group_vars/aws.yml
+
+  tasks:
+    - name: Ensure firewalld is installed
+      package:
+        name: firewalld
+        state: present
+
+    - name: Ensure firewalld is running
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Open required ports in firewalld
+      firewalld:
+        port: "{{ item }}/tcp"
+        state: enabled
+        permanent: true
+        immediate: true
+      loop: "{{ ports }}"
+
+    - name: Check if www.companyplus.com directory exists
+      stat:
+        path: /var/www/html/www.companyplus.com
+      register: companyplus_dir
+
+    - name: Report directory status
+      block:
+        - name: Directory exists
+          debug:
+            msg: "/var/www/html/www.companyplus.com exists"
+      when: companyplus_dir.stat.exists
+
+    - name: Report missing directory
+      debug:
+        msg: "/var/www/html/www.companyplus.com is missing"
+      when: not companyplus_dir.stat.exists
+
+  roles:
+    - role: webserver
