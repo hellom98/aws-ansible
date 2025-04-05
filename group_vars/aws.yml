@@ -1,8 +1,0 @@
-ports:
-  - 80
-  - 443
-
-webserver: nginx
-app_root: html_demo_site-main
-server_name: "{{ ansible_default_ipv4.address }}"
-document_root: /var/www/html

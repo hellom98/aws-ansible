@@ -1,8 +1,6 @@
 - name: Provision Web Servers on AWS
   hosts: aws
   become: yes
-  vars_files:
-    - group_vars/aws.yml
 
   tasks:
     - name: Enable nginx1 repo (Amazon Linux 2)
@@ -58,4 +56,9 @@
       when: not companyplus_dir.stat.exists
 
   roles:
-    - role: webserver
+  - role: webserver
+    vars:
+      app_root: html_demo_site-main
+      server_name: "{{ ansible_facts['default_ipv4']['address'] }}"
+      document_root: /var/www/html
+
